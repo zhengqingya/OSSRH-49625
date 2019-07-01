@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.zhengqing</groupId>
@@ -12,17 +12,8 @@
 	<description>The test uploads the jar to the maven central repository</description>
 	<url>https://github.com/zhengqingya/OSSRH-49683</url>
 
-	<properties>
-		<java.version>1.8</java.version>
-	</properties>
-
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-release-plugin -->
-		<!--	<dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-            </dependency>-->
+		<!-- ... -->
 	</dependencies>
 
 	<!-- 许可证信息 -->
@@ -38,6 +29,12 @@
                 <url>http://www.opensource.org/licenses/mit-license.php</url>
             </license>-->
 	</licenses>
+	<!-- SCM信息 -> git在github上托管 -->
+	<scm>
+		<connection>scm:git:git://github.com/zhengqingya/OSSRH-49683.git</connection>
+		<developerConnection>scm:git:ssh://github.com/zhengqingya/OSSRH-49683.git</developerConnection>
+		<url>https://github.com/zhengqingya/OSSRH-49683/tree/master</url>
+	</scm>
 	<!-- 开发者信息 -->
 	<developers>
 		<developer>
@@ -46,83 +43,24 @@
 			<url>https://github.com/zhengqingya</url>
 		</developer>
 	</developers>
-	<!-- SCM信息 -> git在github上托管 -->
-	<scm>
-		<connection>scm:git:git://github.com/zhengqingya/OSSRH-49683.git</connection>
-		<developerConnection>scm:git:ssh://github.com/zhengqingya/OSSRH-49683.git</developerConnection>
-		<url>https://github.com/zhengqingya/OSSRH-49683/tree/master</url>
-	</scm>
 
-	<!-- 【注】snapshotRepository 与 repository 中的 id 一定要与 setting.xml 中 server 的 id 保持一致！ -->
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
+	<properties>
+		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
 
-	<!-- 使用个人资料：由于生成javadoc和源jar以及使用GPG签署组件是一个相当耗时的过程，因此这些执行通常与正常的构建配置隔离并移动到配置文件中。然后，在通过激活配置文件执行部署时，将使用此配置文件。 -->
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<build>
 				<plugins>
-					<!-- maven-compiler-plugin插件：指定项目源码的jdk版本，编译后的jdk版本，以及编码。 -->
-					<!-- 指定maven编译的jdk版本,如果不指定,maven3默认用jdk 1.5 maven2默认用jdk1.3 -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.1</version>
-						<configuration>
-							<!-- 一般而言，target与source是保持一致的，但是，有时候为了让程序能在其他版本的jdk中运行(对于低版本目标jdk，源代码中不能使用低版本jdk中不支持的语法)，会存在target不同于source的情况 -->
-							<source>1.8</source> <!-- 源代码使用的JDK版本 -->
-							<target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
-							<encoding>UTF-8</encoding><!-- 字符集编码 -->
-						</configuration>
-					</plugin>
-					<!-- maven-jar-plugin：将当前项目打包为Jar包 -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<!-- 生成Jar包时，默认会进行压缩。对于FatJar等不支持压缩的技术，需要关闭此选项，设置如下 -->
-						<configuration>
-							<archive>
-								<addMavenDescriptor>false</addMavenDescriptor>
-							</archive>
-						</configuration>
-					</plugin>
-
-
-					<!-- 使用Maven Release Plugin执行发布部署 -->
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-release-plugin</artifactId>
-						<version>2.5.3</version>
-						<configuration>
-							<autoVersionSubmodules>true</autoVersionSubmodules>
-							<useReleaseProfile>false</useReleaseProfile>
-							<releaseProfiles>release</releaseProfiles>
-							<goals>deploy</goals>
-						</configuration>
-					</plugin>
-					<!-- 使用Nexus Staging Maven插件将Maven配置为部署到OSSRH Nexus Repository Manager -->
-					<!-- Nexus Staging Maven插件是将组件部署到OSSRH并将其发布到Central Repository的推荐方法 -->
-					<plugin>
-						<groupId>org.sonatype.plugins</groupId>
-						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.7</version>
-						<extensions>true</extensions>
-						<configuration>
-							<serverId>ossrh</serverId>
-							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<!-- release自动发布 -->
-							<autoReleaseAfterClose>true</autoReleaseAfterClose>
-						</configuration>
-					</plugin>
 					<!-- 要生成Javadoc和Source jar文件，您必须配置javadoc和源Maven插件 -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -167,6 +105,17 @@
 					</plugin>
 				</plugins>
 			</build>
+			<!-- 【注】snapshotRepository 与 repository 中的 id 一定要与 setting.xml 中 server 的 id 保持一致！ -->
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 
