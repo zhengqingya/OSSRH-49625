@@ -5,25 +5,38 @@
 
 	<groupId>com.github.zhengqing</groupId>
 	<artifactId>OSSRH-49683</artifactId>
-	<version>0.0.1</version>
-	<packaging>pom</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>The test uploads the jar to the maven central repository</description>
 	<url>https://github.com/zhengqingya/OSSRH-49683</url>
 
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-release-plugin -->
+		<!--	<dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </dependency>-->
+	</dependencies>
+
 	<!-- 许可证信息 -->
 	<licenses>
-		<!-- MIT许可证 -->
-		<license>
-			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
-		</license>
 		<!-- Apache许可证 -->
-		<!--<license>
+		<license>
 			<name>The Apache Software License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-		</license>-->
+		</license>
+		<!-- MIT许可证 -->
+		<!--	<license>
+                <name>MIT License</name>
+                <url>http://www.opensource.org/licenses/mit-license.php</url>
+            </license>-->
 	</licenses>
 	<!-- 开发者信息 -->
 	<developers>
@@ -40,10 +53,6 @@
 		<url>https://github.com/zhengqingya/OSSRH-49683/tree/master</url>
 	</scm>
 
-	<modules>
-		<module>demo</module>
-	</modules>
-
 	<!-- 【注】snapshotRepository 与 repository 中的 id 一定要与 setting.xml 中 server 的 id 保持一致！ -->
 	<distributionManagement>
 		<snapshotRepository>
@@ -56,21 +65,38 @@
 		</repository>
 	</distributionManagement>
 
-	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-release-plugin -->
-	<!--	<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-release-plugin</artifactId>
-			<version>2.5.3</version>
-		</dependency>-->
-	</dependencies>
-
 	<!-- 使用个人资料：由于生成javadoc和源jar以及使用GPG签署组件是一个相当耗时的过程，因此这些执行通常与正常的构建配置隔离并移动到配置文件中。然后，在通过激活配置文件执行部署时，将使用此配置文件。 -->
 	<profiles>
 		<profile>
 			<id>release</id>
 			<build>
 				<plugins>
+					<!-- maven-compiler-plugin插件：指定项目源码的jdk版本，编译后的jdk版本，以及编码。 -->
+					<!-- 指定maven编译的jdk版本,如果不指定,maven3默认用jdk 1.5 maven2默认用jdk1.3 -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.1</version>
+						<configuration>
+							<!-- 一般而言，target与source是保持一致的，但是，有时候为了让程序能在其他版本的jdk中运行(对于低版本目标jdk，源代码中不能使用低版本jdk中不支持的语法)，会存在target不同于source的情况 -->
+							<source>1.8</source> <!-- 源代码使用的JDK版本 -->
+							<target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
+							<encoding>UTF-8</encoding><!-- 字符集编码 -->
+						</configuration>
+					</plugin>
+					<!-- maven-jar-plugin：将当前项目打包为Jar包 -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<!-- 生成Jar包时，默认会进行压缩。对于FatJar等不支持压缩的技术，需要关闭此选项，设置如下 -->
+						<configuration>
+							<archive>
+								<addMavenDescriptor>false</addMavenDescriptor>
+							</archive>
+						</configuration>
+					</plugin>
+
+
 					<!-- 使用Maven Release Plugin执行发布部署 -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
@@ -93,6 +119,7 @@
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<!-- release自动发布 -->
 							<autoReleaseAfterClose>true</autoReleaseAfterClose>
 						</configuration>
 					</plugin>
@@ -123,7 +150,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					<!--  GPG插件用于使用以下配置对组件进行签名 -->
+					<!--  必须配置GPG插件用于使用以下配置对组件进行签名 -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
