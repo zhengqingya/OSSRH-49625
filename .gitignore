@@ -3,7 +3,9 @@
 *.iws
 *.iml
 *.ipr
+target
 
 /.idea/
 /code-generator.iml
 
+src/test/
